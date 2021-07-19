@@ -1,49 +1,76 @@
 import User from "./User";
-
-const users = [
-    {
-      "gender": "female",
-      "name": {
-        "title": "Ms",
-        "first": "Eva",
-        "last": "Myers"
-      },
-      "email": "eva.myers@example.com",
-      "picture": {
-        "large": "https://randomuser.me/api/portraits/women/56.jpg",
-        "medium": "https://randomuser.me/api/portraits/med/women/56.jpg",
-        "thumbnail": "https://randomuser.me/api/portraits/thumb/women/56.jpg"
-      }
-    },
-    {
-      "gender": "male",
-      "name": {
-        "title": "Mr",
-        "first": "Philip",
-        "last": "Gill"
-      },
-      "email": "philip.gill@example.com",
-      "picture": {
-        "large": "https://randomuser.me/api/portraits/men/59.jpg",
-        "medium": "https://randomuser.me/api/portraits/med/men/59.jpg",
-        "thumbnail": "https://randomuser.me/api/portraits/thumb/men/59.jpg"
-      }
-    }
-  ]
+import { useEffect, useState } from "react";
 
 export default function UserList(props) {
+  const [users, setCharacters] = useState([]);
+  const [listLimit, setlistLimit] = useState(10);
+  const [genderFilter, setGenderFilter] = useState("all");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const apiUrl = `https://randomuser.me/api/?inc=email,gender,name,picture&gender=${genderFilter}&results=${listLimit}`;
 
-  // https://randomuser.me/api/?inc=email,gender,name,picture&results=10
-  const userListItems = users.map(u=>{
-    return UserListItem(user => u);
-  })
-  <ul>
-    {userListItems}
-  </ul>
+  useEffect(() => {
+    setIsLoading(true);
+    setIsError(false);
+
+    fetch(apiUrl)
+      .then((res) => res.json())
+      .then((data) => {
+        setCharacters(data.results);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        setIsError(false);
+      });
+  }, [apiUrl]);
+
+  // https://randomuser.me/users/?inc=email,gender,name,picture&results=10
+  const userListItems = users.map((u, index) => {
+    return <UserListItem key={index} user={u} />;
+  });
+  return (
+    <ul className="UserList">
+      <UserListHeader
+        listLimit={listLimit}
+        onListLimitChange={(e) => {
+          console.log(e.target.value);
+          setlistLimit(e.target.value);
+        }}
+        onListGenderFilterChange={(e) => {
+          console.log(e.target.value);
+          setGenderFilter(e.target.value);
+        }}
+      />
+      {userListItems}
+    </ul>
+  );
 }
 
 function UserListItem(props) {
-  <li>{props.user.name.first}</li>;
+  return (
+    <li className="UserListItem">
+      <User user={props.user} />
+    </li>
+  );
 }
 
-export default UserList;
+function UserListHeader(props) {
+  return (
+    <li className="UserListHeader">
+      <div>
+        <label>List Limit</label>
+        <input
+          type="number"
+          onChange={props.onListLimitChange}
+          value={props.listLimit}
+        ></input>
+      </div>
+      <select onChange={props.onListGenderFilterChange}>
+        <option value="all">All Genders</option>
+        <option value="male">Male only</option>
+        <option value="female">Female only</option>
+      </select>
+    </li>
+  );
+}
