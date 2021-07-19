@@ -3,11 +3,12 @@ import "./App.css";
 
 function App() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  function handleWindowResize() {
-    setWindowWidth(window.innerWidth);
-  }
 
   useEffect(() => {
+    function handleWindowResize() {
+      setWindowWidth(window.innerWidth);
+    }
+
     window.addEventListener("resize", handleWindowResize);
 
     return () => {
