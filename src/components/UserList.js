@@ -34,11 +34,9 @@ export default function UserList(props) {
       <UserListHeader
         listLimit={listLimit}
         onListLimitChange={(e) => {
-          console.log(e.target.value);
           setlistLimit(e.target.value);
         }}
         onListGenderFilterChange={(e) => {
-          console.log(e.target.value);
           setGenderFilter(e.target.value);
         }}
       />
